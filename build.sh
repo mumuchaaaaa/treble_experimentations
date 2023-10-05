@@ -17,6 +17,11 @@ phh="android-13.0"
 build_target="$1"
 manifest_url="https://android.googlesource.com/platform/manifest"
 
+if [ "$build_target" = "android-14.0" ];then
+    aosp="android-14.0.0_r2"
+    phh="android-14.0"
+fi
+
 repo init -u "$manifest_url" -b $aosp --depth=1
 if [ -d .repo/local_manifests ] ;then
 	( cd .repo/local_manifests; git fetch; git reset --hard; git checkout origin/$phh)
