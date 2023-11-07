@@ -34,7 +34,7 @@ name="phh-treble-$suffix"
 
 echo "Running build on $name"
 
-docker run -v /nvme1/docker-build:/build-dir --privileged --name "$name" --rm -d ubuntu:20.04 sleep infinity
+docker run -v /nvme2/docker-build:/build-dir -v /nvme2/AOSP-Mirror:/git --privileged --name "$name" --rm -d ubuntu:20.04 sleep infinity
 
 docker exec "$name" echo "Good morning, now building"
 
@@ -89,11 +89,11 @@ run_script 'echo >> /etc/hosts ; echo 84.38.177.154 git.rip >> /etc/hosts'
 
 run_script '\
 	mkdir -p build-dir && \
-	sed -E -i "s/(repo sync.*)-j 1/\1-j16/g" treble_experimentations/build.sh && \
+	sed -E -i "s/(repo sync.*)-j 1/\1-j8/g" treble_experimentations/build.sh && \
     sed -E -i "s/(make.*)-j8/\1-j24/g" treble_experimentations/build.sh
 	'
 
-run_script "cd build-dir && bash ../treble_experimentations/build.sh $android_version"
+run_script "cd build-dir && REPO_MIRROR_LOCATION=/git bash ../treble_experimentations/build.sh $android_version"
 
 docker cp "$name:"/build-dir/release release
 
