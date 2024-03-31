@@ -20,6 +20,7 @@ manifest_url="https://android.googlesource.com/platform/manifest"
 if [ "$build_target" = "android-14.0" ];then
     aosp="android-14.0.0_r29"
     phh="android-14.0"
+    supp="-ap1a"
 fi
 
 repo init -u "$manifest_url" -b $aosp --depth=1
@@ -53,8 +54,8 @@ cp patches.zip release/$rom_fp/patches-for-developers.zip
     git clone https://github.com/phhusson/vendor_vndk -b android-10.0
 )
 
-buildVariant treble_arm64_bvS-userdebug td-arm64-ab-vanilla
+buildVariant treble_arm64_bvS$supp-userdebug td-arm64-ab-vanilla
 ( cd sas-creator; bash lite-adapter.sh 64; xz -c s.img -T0 > ../release/$rom_fp/system-td-arm64-ab-vndklite-vanilla.img.xz )
 
-buildVariant treble_a64_bvS-userdebug td-arm32_binder64-ab-vanilla
+buildVariant treble_a64_bvS$supp-userdebug td-arm32_binder64-ab-vanilla
 ( cd sas-creator; bash lite-adapter.sh 32; xz -c s.img -T0 > ../release/$rom_fp/system-td-arm32_binder64-ab-vndklite-vanilla.img.xz )
