@@ -65,6 +65,7 @@ run_script 'export DEBIAN_FRONTEND=noninteractive && dpkg --add-architecture i38
 		lzop \
 		lzip \
 		lunzip \
+		rsync \
 		squashfs-tools \
 		sudo \
 		xmlstarlet \
