@@ -24,9 +24,9 @@ if [ "$build_target" = "android-14.0" ];then
 fi
 
 if [ "$build_target" = "android-15.0" ];then
-    aosp="android-15.0.0_r5"
+    aosp="android-15.0.0_r9"
     phh="android-15.0"
-    supp="-ap3a"
+    supp="-ap4a"
 fi
 
 repo init -u "$manifest_url" -b $aosp --depth=1
