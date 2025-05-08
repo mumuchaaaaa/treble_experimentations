@@ -1,0 +1,64 @@
+name: Build Xdroid 14 GSI
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Branch manifest (default: fourteen)'
+        default: 'fourteen'
+      target:
+        description: 'Target device (arm64_ab/arm64_a)'
+        default: 'arm64_ab'
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout treble_experimentations
+        uses: actions/checkout@v3
+        with:
+          submodules: recursive
+          path: source
+
+      - name: Checkout XDroid manifest
+        uses: repo-sync/github-sync@v2
+        with:
+          source_repo: ${{ github.repository }}
+          source_dir: manifests/xdroid
+          destination: source/.repo/manifests
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          ref: main
+
+      - name: Install dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y repo bc build-essential zip unzip lzop
+
+      - name: Init Android repo
+        run: |
+          mkdir -p source/.repo
+          cd source
+          repo init -u .repo/manifests -b ${{ github.event.inputs.branch }}
+          repo sync -c --no-clone-bundle --no-tags -j$(nproc)
+
+      - name: Apply Treble patches
+        run: |
+          cd source
+          bash treble/apply-patches.sh
+
+      - name: Setup build environment
+        run: |
+          cd source
+          source build/envsetup.sh
+          lunch xdroid_${{ github.event.inputs.target }}-userdebug
+
+      - name: Build system image
+        run: |
+          cd source
+          make systemimage -j$(nproc)
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: system-img
+          path: source/out/target/product/xdroid_${{ github.event.inputs.target }}/system.img
