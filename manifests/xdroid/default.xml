@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest>
+  <remote  name="origin"
+           fetch="https://github.com/XDroid-OSS/" />
+  <default revision="fourteen" remote="origin" />
+  <project name="manifest" path="." />
+  <!-- Tambahkan project lain jika perlu -->
+</manifest>
