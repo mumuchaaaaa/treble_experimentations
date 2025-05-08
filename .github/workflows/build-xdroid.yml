@@ -28,8 +28,8 @@ jobs:
     - name: Init repo
       run: |
         cd xdroid
-        repo init -u https://${{ secrets.GH_TOKEN }}@github.com/XDroid-OSS/manifest -b fourteen
-        repo sync --force-sync --no-tags --no-clone-bundle -j1
+        repo init -u https://${{ secrets.GH_TOKEN }}@github.com/xdroid-oss/xd_manifest -b fourteen --git-lfs
+        repo sync -c -j$(nproc --all) --force-sync --no-clone-bundle --no-tags
 
     - name: Apply TrebleDroid patches
       run: |
