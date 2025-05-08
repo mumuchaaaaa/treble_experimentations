@@ -1,64 +1,46 @@
 name: Build Xdroid 14 GSI
 
 on:
-  workflow_dispatch:
-    inputs:
-      branch:
-        description: 'Branch manifest (default: fourteen)'
-        default: 'fourteen'
-      target:
-        description: 'Target device (arm64_ab/arm64_a)'
-        default: 'arm64_ab'
+  workflow_dispatch: {}
 
 jobs:
   build:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     steps:
-      - name: Checkout treble_experimentations
+      - name: Checkout TrebleDroid
         uses: actions/checkout@v3
-        with:
-          submodules: recursive
-          path: source
 
-      - name: Checkout XDroid manifest
-        uses: repo-sync/github-sync@v2
-        with:
-          source_repo: ${{ github.repository }}
-          source_dir: manifests/xdroid
-          destination: source/.repo/manifests
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          ref: main
-
-      - name: Install dependencies
+      - name: Set up environment
         run: |
           sudo apt update
-          sudo apt install -y repo bc build-essential zip unzip lzop
+          sudo apt install -y bc bison build-essential curl flex g++-multilib gcc-multilib git gnupg gperf imagemagick lib32ncurses5-dev lib32readline-dev lib32z1-dev liblz4-tool libncurses5-dev libsdl1.2-dev libssl-dev libxml2 libxml2-utils lzop openjdk-11-jdk pngcrush rsync schedtool squashfs-tools xsltproc zip zlib1g-dev repo
 
-      - name: Init Android repo
+      - name: Init repo
         run: |
-          mkdir -p source/.repo
-          cd source
-          repo init -u .repo/manifests -b ${{ github.event.inputs.branch }}
-          repo sync -c --no-clone-bundle --no-tags -j$(nproc)
+          mkdir xdroid
+          cd xdroid
+          repo init -u https://github.com/XDroid-OSS/manifest -b fourteen
+          repo sync -c --no-tags --no-clone-bundle -j4
 
-      - name: Apply Treble patches
+      - name: Apply GSI patches
         run: |
-          cd source
+          cd xdroid
+          git clone https://github.com/phhusson/treble_experimentations treble
           bash treble/apply-patches.sh
 
-      - name: Setup build environment
+      - name: Setup environment
         run: |
-          cd source
+          cd xdroid
           source build/envsetup.sh
-          lunch xdroid_${{ github.event.inputs.target }}-userdebug
+          lunch xdroid_arm64_ab-userdebug
 
-      - name: Build system image
+      - name: Build GSI
         run: |
-          cd source
+          cd xdroid
           make systemimage -j$(nproc)
 
-      - name: Upload artifact
-        uses: actions/upload-artifact@v3
+      - name: Upload system image
+        uses: actions/upload-artifact@v4
         with:
           name: system-img
-          path: source/out/target/product/xdroid_${{ github.event.inputs.target }}/system.img
+          path: xdroid/out/target/product/*/system.img
