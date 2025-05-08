@@ -28,7 +28,7 @@ jobs:
     - name: Init repo
       run: |
         cd xdroid
-        repo init -u https://github.com/XDroid-OSS/manifest -b fourteen
+        repo init -u https://${{ secrets.GH_TOKEN }}@github.com/XDroid-OSS/manifest -b fourteen
         repo sync --force-sync --no-tags --no-clone-bundle -j1
 
     - name: Apply TrebleDroid patches
